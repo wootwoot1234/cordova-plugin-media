@@ -80,10 +80,11 @@
     NSString* docsPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
 
     // first check for correct extension
-    if ([[resourcePath pathExtension] caseInsensitiveCompare:RECORDING_WAV] != NSOrderedSame) {
-        resourceURL = nil;
-        NSLog(@"Resource for recording must have %@ extension", RECORDING_WAV);
-    } else if ([resourcePath hasPrefix:DOCUMENTS_SCHEME_PREFIX]) {
+//    if ([[resourcePath pathExtension] caseInsensitiveCompare:RECORDING_WAV] != NSOrderedSame) {
+//        resourceURL = nil;
+//        NSLog(@"Resource for recording must have %@ extension", RECORDING_WAV);
+//    } else
+        if ([resourcePath hasPrefix:DOCUMENTS_SCHEME_PREFIX]) {
         // try to find Documents:// resources
         filePath = [resourcePath stringByReplacingOccurrencesOfString:DOCUMENTS_SCHEME_PREFIX withString:[NSString stringWithFormat:@"%@/", docsPath]];
         NSLog(@"Will use resource '%@' from the documents folder with path = %@", resourcePath, filePath);
@@ -568,9 +569,14 @@
                     return;
                 }
             }
-            
+            NSDictionary *recordSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                            [NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
+                                            [NSNumber numberWithFloat:16000.0], AVSampleRateKey,
+                                            [NSNumber numberWithInt: 1], AVNumberOfChannelsKey,
+                                            nil];
             // create a new recorder for each start record
-            audioFile.recorder = [[CDVAudioRecorder alloc] initWithURL:audioFile.resourceURL settings:nil error:&error];
+            //audioFile.recorder = [[CDVAudioRecorder alloc] initWithURL:audioFile.resourceURL settings:nil error:&error];
+            audioFile.recorder = [[CDVAudioRecorder alloc] initWithURL:audioFile.resourceURL settings:recordSettings error:&error];
             
             bool recordingSuccess = NO;
             if (error == nil) {
